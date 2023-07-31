@@ -1,6 +1,7 @@
 #pragma once
 #include "constants.hpp"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_render.h>
 
 class Ball {
 
@@ -8,6 +9,10 @@ private:
     SDL_Rect m_Shape;
     float m_Angle;
     float m_Velocity;
+
+    void SetNewPos() {
+        m_Shape.x += 1;
+    }
 
 public:
     Ball()
@@ -20,5 +25,10 @@ public:
         m_Angle(Constants::PI/2),
         m_Velocity(Constants::BALL_BASE_VELOCITY)
     {}
+
+    void Iteration(SDL_Renderer* renderer) {
+        SDL_RenderFillRect(renderer, &m_Shape);
+        SetNewPos();
+    }
 
 };

@@ -2,6 +2,10 @@
 #include <cstdint>
 
 namespace Constants {
+
+    //fps
+    constexpr int      FPS                = 120;
+
     //pi
     constexpr float    PI                 = 3.14159f;
 
