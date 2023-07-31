@@ -5,17 +5,15 @@
 
 class Game {
 
-private:
+public:
     Ball m_Ball;
 
-public:
     Game()
         : m_Ball(Ball())
     {}
 
-    void Iteration(SDL_Renderer* renderer) {
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        m_Ball.Iteration(renderer);
+    void Render(SDL_Renderer* renderer) {
+        m_Ball.Render(renderer);
     }
 
 };

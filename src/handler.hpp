@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <map>
 #include "constants.hpp"
 #include "game.hpp"
 
@@ -11,24 +12,40 @@ private:
     SDL_Event m_Events;
     Game m_Game;
     bool m_Running;
+    std::map<int, bool> m_KeyInput;
 
-    void HandleEvents() {
+    void CollectEvents() {
         while (SDL_PollEvent(&m_Events)) {
             switch (m_Events.type) {
                 case SDL_QUIT:
                     m_Running = false;
+                    break;
+                case SDL_KEYDOWN:
+                    m_KeyInput[m_Events.key.keysym.sym] = true;
+                    break;
+                case SDL_KEYUP:
+                    m_KeyInput[m_Events.key.keysym.sym] = false;
+                    break;
+
             }
         }
     }
 
+    void TreatEvents() {
+        if (m_KeyInput[SDLK_w]) m_Game.m_Ball.AddAngle(-0.1);
+        if (m_KeyInput[SDLK_x]) m_Game.m_Ball.AddAngle(+0.1);
+    }
+
     void Iteration() {
-        HandleEvents();
-        
+        //Handle Events
+        CollectEvents();
+        TreatEvents();
+
+        //Render Everything
         SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 255);
         SDL_RenderClear(m_Renderer);
-
-        m_Game.Iteration(m_Renderer);
-
+        SDL_SetRenderDrawColor(m_Renderer, 255, 255, 255, 255);
+        m_Game.Render(m_Renderer);
         SDL_RenderPresent(m_Renderer);
 
     }
