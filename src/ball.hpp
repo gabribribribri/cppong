@@ -22,7 +22,7 @@ private:
         m_X += (nQ == 0 or nQ == 1 ? 1 : -1) * (nQ == 1 or nQ == 3 ? plusX : plusY);
         m_Y += (nQ == 1 or nQ == 2 ? 1 : -1) * (nQ == 0 or nQ == 2 ? plusX : plusY);
 
-        std::cout << m_Angle << "  " << useAngle << "  " << nQ << std::endl;
+        //std::cout << m_Angle << "  " << useAngle << "  " << nQ << std::endl;
     }
 
     void FixAngle() {
@@ -33,6 +33,11 @@ private:
     }
 
 public:
+    const double getX()        const { return m_X;        }
+    const double getY()        const { return m_Y;        }
+    const double getAngle()    const { return m_Angle;    }
+    const double getVelocity() const { return m_Velocity; }
+
     Ball() :
         m_X(Constants::WINDOW_W/2+Constants::BALL_SIZE/2),
         m_Y(Constants::WINDOW_H/2+Constants::BALL_SIZE/2),
@@ -43,6 +48,12 @@ public:
     void AddAngle(double toAdd) {
         m_Angle += toAdd;
         FixAngle();
+    }
+
+    void InvertDirection(bool vertically /*if not vertically then invert horizontally*/) {
+        if (vertically) {
+            
+        }
     }
 
     void Render(SDL_Renderer* renderer) {

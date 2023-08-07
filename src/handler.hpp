@@ -1,6 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <map>
+#include <unordered_map>
 #include "constants.hpp"
 #include "game.hpp"
 
@@ -12,7 +12,7 @@ private:
     SDL_Event m_Events;
     Game m_Game;
     bool m_Running;
-    std::map<int, bool> m_KeyInput;
+    std::unordered_map<int, bool> m_KeyInput;
 
     void CollectEvents() {
         while (SDL_PollEvent(&m_Events)) {
