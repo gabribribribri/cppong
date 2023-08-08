@@ -6,6 +6,10 @@
 
 class Handler {
 
+/*
+    ! all events are handled in Handler class
+*/
+
 private:
     SDL_Window* m_Window;
     SDL_Renderer* m_Renderer;
@@ -32,6 +36,8 @@ private:
     }
 
     void TreatEvents() {
+        if (m_KeyInput[SDLK_c]) m_Game.m_Ball.InvertAngle(false);
+        if (m_KeyInput[SDLK_v]) m_Game.m_Ball.InvertAngle(true);
         if (m_KeyInput[SDLK_w]) m_Game.m_Ball.AddAngle(-0.1);
         if (m_KeyInput[SDLK_x]) m_Game.m_Ball.AddAngle(+0.1);
     }
@@ -40,6 +46,9 @@ private:
         //Handle Events
         CollectEvents();
         TreatEvents();
+
+        //Eventless Game Logic
+        m_Game.EventlessGameLogic();
 
         //Render Everything
         SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 255);
