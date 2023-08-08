@@ -26,14 +26,14 @@ private:
     }
 
 public:
-    const double GetX()        const { return m_X;        }
-    const double GetY()        const { return m_Y;        }
-    const double GetAngle()    const { return m_Angle;    }
-    const double GetVelocity() const { return m_Velocity; }
+    const double& GetX()        const { return m_X;        }
+    const double& GetY()        const { return m_Y;        }
+    const double& GetAngle()    const { return m_Angle;    }
+    const double& GetVelocity() const { return m_Velocity; }
 
     Ball() :
-        m_X(Constants::WINDOW_W/2+Constants::BALL_SIZE/2),
-        m_Y(Constants::WINDOW_H/2+Constants::BALL_SIZE/2),
+        m_X(Constants::WINDOW_W<double>/2+Constants::BALL_SIZE<double>/2),
+        m_Y(Constants::WINDOW_H<double>/2+Constants::BALL_SIZE<double>/2),
         m_Angle(Constants::PI/2),
         m_Velocity(Constants::BALL_BASE_VELOCITY)
     {}
@@ -62,15 +62,18 @@ public:
     }
 
     void InvertAngle(bool vertically /*if not vertically then invert horizontally*/) {
-        SetAngle(vertically ? 1 : 2 * Constants::PI - GetAngle());
+        if (vertically)
+            SetAngle(2*Constants::PI - GetAngle());
+        else
+            SetAngle(Constants::PI - GetAngle());
     }
 
     void Render(SDL_Renderer* renderer) {
         SDL_Rect ballShape{
             static_cast<int>(m_X),
             static_cast<int>(m_Y),
-            Constants::BALL_SIZE,
-            Constants::BALL_SIZE,
+            Constants::BALL_SIZE<int>,
+            Constants::BALL_SIZE<int>,
         };
         SDL_RenderFillRect(renderer, &ballShape);
     }

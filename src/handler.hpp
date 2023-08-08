@@ -71,8 +71,8 @@ public:
             "Pong",
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
-            Constants::WINDOW_W,
-            Constants::WINDOW_H,
+            Constants::WINDOW_W<int>,
+            Constants::WINDOW_H<int>,
             SDL_WINDOW_SHOWN
         );
 
