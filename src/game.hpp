@@ -36,25 +36,24 @@ public:
 
 private:
     void HandleCol() {
-        //do not get value twice or it will reinvert ball
-        WindowBorderCol ballWallCol = HandleBallWallCol();
+        WindowBorderCol ballWallCol = HandleBallWallCol(true);
     }
 
-    WindowBorderCol HandleBallWallCol() {
+    WindowBorderCol HandleBallWallCol(bool doInvert) {
         if (m_Ball.GetX()+Constants::BALL_SIZE<double> > Constants::WINDOW_W<double>) {
-            m_Ball.InvertAngle(false);
+            if (doInvert) m_Ball.InvertAngle(false);
             return WindowBorderCol::Right;
         }
         if (m_Ball.GetY()+Constants::BALL_SIZE<double> > Constants::WINDOW_H<double>) {
-            m_Ball.InvertAngle(true);
+            if (doInvert) m_Ball.InvertAngle(true);
             return WindowBorderCol::Floor;
         }
         if (m_Ball.GetX() < 0) {
-            m_Ball.InvertAngle(false);
+            if (doInvert) m_Ball.InvertAngle(false);
             return WindowBorderCol::Left;
         }
         if (m_Ball.GetY() < 0) {
-            m_Ball.InvertAngle(true);
+            if (doInvert) m_Ball.InvertAngle(true);
             return WindowBorderCol::Roof;
         }
         return WindowBorderCol::Nothing;
