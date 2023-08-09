@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_keycode.h>
 #include <unordered_map>
 #include "constants.hpp"
 #include "game.hpp"
@@ -40,6 +41,11 @@ private:
         if (m_KeyInput[SDLK_v]) m_Game.m_Ball.InvertAngle(true);
         if (m_KeyInput[SDLK_w]) m_Game.m_Ball.AddAngle(-0.1);
         if (m_KeyInput[SDLK_x]) m_Game.m_Ball.AddAngle(+0.1);
+        if (m_KeyInput[SDLK_SPACE]) {
+            m_Game.m_Ball.GetX() = Constants::WINDOW_W<double>/2+Constants::BALL_SIZE<double>/2;
+            m_Game.m_Ball.GetY() = Constants::WINDOW_H<double>/2+Constants::BALL_SIZE<double>/2;
+        }
+
     }
 
     void Iteration() {

@@ -30,6 +30,10 @@ public:
     const double& GetY()        const { return m_Y;        }
     const double& GetAngle()    const { return m_Angle;    }
     const double& GetVelocity() const { return m_Velocity; }
+    double& GetX()                    { return m_X;        }
+    double& GetY()                    { return m_Y;        }
+    double& GetAngle()                { return m_Angle;    }
+    double& GetVelocity()             { return m_Velocity; }
 
     Ball() :
         m_X(Constants::WINDOW_W<double>/2+Constants::BALL_SIZE<double>/2),
@@ -62,10 +66,11 @@ public:
     }
 
     void InvertAngle(bool vertically /*if not vertically then invert horizontally*/) {
-        if (vertically)
-            SetAngle(2*Constants::PI - GetAngle());
-        else
+        /* if (vertically)
             SetAngle(Constants::PI - GetAngle());
+        else
+            SetAngle(2*Constants::PI - GetAngle()); */
+        SetAngle((!vertically+1) * Constants::PI - GetAngle());
     }
 
     void Render(SDL_Renderer* renderer) {
