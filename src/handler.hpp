@@ -1,10 +1,14 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <map>
+#include <unordered_map>
 #include "constants.hpp"
 #include "game.hpp"
 
 class Handler {
+
+/*
+    ! all events are handled in Handler class
+*/
 
 private:
     SDL_Window* m_Window;
@@ -12,7 +16,7 @@ private:
     SDL_Event m_Events;
     Game m_Game;
     bool m_Running;
-    std::map<int, bool> m_KeyInput;
+    std::unordered_map<int, bool> m_KeyInput;
 
     void CollectEvents() {
         while (SDL_PollEvent(&m_Events)) {
@@ -32,6 +36,8 @@ private:
     }
 
     void TreatEvents() {
+        if (m_KeyInput[SDLK_c]) m_Game.m_Ball.InvertAngle(false);
+        if (m_KeyInput[SDLK_v]) m_Game.m_Ball.InvertAngle(true);
         if (m_KeyInput[SDLK_w]) m_Game.m_Ball.AddAngle(-0.1);
         if (m_KeyInput[SDLK_x]) m_Game.m_Ball.AddAngle(+0.1);
     }
@@ -40,6 +46,9 @@ private:
         //Handle Events
         CollectEvents();
         TreatEvents();
+
+        //Eventless Game Logic
+        m_Game.EventlessGameLogic();
 
         //Render Everything
         SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 255);
@@ -62,8 +71,8 @@ public:
             "Pong",
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
-            Constants::WINDOW_W,
-            Constants::WINDOW_H,
+            Constants::WINDOW_W<int>,
+            Constants::WINDOW_H<int>,
             SDL_WINDOW_SHOWN
         );
 

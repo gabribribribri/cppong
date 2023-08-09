@@ -7,14 +7,14 @@ namespace Constants {
     constexpr int      FPS                = 120;
 
     //pi
-    constexpr double    PI                 = 3.14159f;
+    constexpr double                 PI       { 3.14159 };
 
     //window
-    constexpr uint32_t WINDOW_W           = 800;
-    constexpr uint32_t WINDOW_H           = 500;
+    template<typename T> constexpr T WINDOW_W   { 800     };
+    template<typename T> constexpr T WINDOW_H   { 500     };
 
     //ball
     constexpr int32_t  BALL_BASE_VELOCITY = 1;
-    constexpr int32_t  BALL_SIZE          = 20; 
+    template<typename T> constexpr T  BALL_SIZE { 20 }; 
 
 }
