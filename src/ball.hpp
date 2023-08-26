@@ -16,8 +16,6 @@ private:
     double m_Angle;
     double m_Velocity;
 
-    
-
     void FixAngle() {
         if (std::abs(m_Angle) > 2*Constants::PI)
             m_Angle = std::fmod(m_Angle, 2*Constants::PI);

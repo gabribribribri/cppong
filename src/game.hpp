@@ -7,14 +7,6 @@
 #include <unordered_map>
 #include "score_digit.hpp"
 
-enum class WindowBorderCol {
-    Nothing = 0,
-    Roof,
-    Floor,
-    Right,
-    Left
-};
-
 enum class GameState {
     Running,
     Waiting,
@@ -28,59 +20,74 @@ class Game {
 */
 
 public:
-
-    Ball m_Ball;
-    std::pair<ScoreDigit, ScoreDigit> m_ScoreDigits;
-    
     GameState m_GameState;
     int m_Timeout;
     std::pair<uint8_t, uint8_t> m_Score;
     std::unordered_map<int, bool> m_KeyInput;
     SDL_Event m_Events;
 
-    void Iteration(SDL_Renderer* renderer) {
-        if (m_Timeout-- <= 0) {
-
-            ScoreDigit::s_Show = false;
-            
-            //Handle Events
-            CollectEvents();
-            TreatEvents();
-
-            //Eventless Game Logic
-            EventlessGameLogic();
-        } else {
-            ScoreDigit::s_Show = true;
-        }
-
-        //Render Everything
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        Render(renderer);
-        SDL_RenderPresent(renderer);
-
-    }
+    //game sprites
+    Ball m_Ball;
+    std::pair<ScoreDigit, ScoreDigit> m_ScoreDigits;
 
     Game()
-        : m_Ball(Ball()),
-        m_Timeout(0),
+        : //initializing all members
+        m_GameState(GameState::Waiting),
+        m_Timeout(Constants::TIMEOUT_FRAMES),
         m_Score({0, 0}),
+
+        //game sprites
+        m_Ball(Ball()),
         m_ScoreDigits({
             {
-                200-4*Constants::DIGIT_PIXEL_SIZE/2,
-                75,
+                Constants::WINDOW_W<int>/4-4*Constants::DIGIT_PIXEL_SIZE/2,
+                Constants::WINDOW_H<int>/9,
                 4*Constants::DIGIT_PIXEL_SIZE,
                 5*Constants::DIGIT_PIXEL_SIZE,
             },
             {
-                600-4*Constants::DIGIT_PIXEL_SIZE/2,
-                75,
+                3*Constants::WINDOW_W<int>/4-4*Constants::DIGIT_PIXEL_SIZE/2,
+                Constants::WINDOW_H<int>/9,
                 4*Constants::DIGIT_PIXEL_SIZE,
                 5*Constants::DIGIT_PIXEL_SIZE,
             }
         })
-    {}
+    {
+        SetGameStateWaiting();
+    }
+
+    void Iteration(SDL_Renderer* renderer) {
+        switch (m_GameState) {
+            case GameState::Running:
+                ScoreDigit::s_Show = false;
+                //handle all events
+                CollectEvents();
+                TreatEvents();
+                //game logic
+                EventlessGameLogic();
+                break;
+
+            case GameState::Waiting:
+                if (m_Timeout-- <= 0) SetGameStateRunning();
+                //only "closing" event
+                CollectEvents();
+                break;
+
+            default:
+                break;
+        }
+        
+        //background
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); //color black
+        SDL_RenderClear(renderer);
+        //foreground
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); //color white
+        m_Ball.Render(renderer);
+        m_ScoreDigits.first.Render(renderer, m_Score.first);
+        m_ScoreDigits.second.Render(renderer, m_Score.second);
+        //drawing everything to screen
+        SDL_RenderPresent(renderer);
+    }
 
     void EventlessGameLogic() {
         #if DEBUG
@@ -96,12 +103,7 @@ public:
         m_Ball.SetNewPos();
     }
 
-    void Render(SDL_Renderer* renderer) {
-        m_Ball.Render(renderer);
-        m_ScoreDigits.first.Render(renderer, m_Score.first);
-        m_ScoreDigits.second.Render(renderer, m_Score.second);
-    }
-
+        
 private:
     void TreatEvents() {
         #if DEBUG == 1
@@ -133,59 +135,44 @@ private:
         }
     }
 
-    void ResetGameStat(WindowBorderCol col) {
+    void HandleCol() {
+        HandleBallWallCol();
+    }
+
+    void SetGameStateWaiting() {
         m_Ball.SetPosMiddle();
-        m_Timeout = Constants::TIMEOUT_SECONDS*Constants::FPS;
-        if (col == WindowBorderCol::Left) {
+        m_Timeout = Constants::TIMEOUT_FRAMES;
+        ScoreDigit::s_Show = true;
+        m_GameState = GameState::Waiting;
+    }
+
+    void SetGameStateRunning() {
+        ScoreDigit::s_Show = false;
+        m_GameState = GameState::Running;
+    }
+
+    void HandleBallWallCol() {
+        if (m_Ball.GetY()-Constants::BALL_SIZE<double>/2 < 0 or
+            m_Ball.GetY()+Constants::BALL_SIZE<double>/2 > Constants::WINDOW_H<double>)
+            m_Ball.InvertAngle(true);
+
+
+        else if (m_Ball.GetX()-Constants::BALL_SIZE<double>/2 < 0) {
+            #if DEBUG == 1
+                    std::cout << "Left Scored !\n";
+            #endif
             m_Score.first++;
             m_Ball.SetAngle(Constants::PI/2);
-        } else {
+            SetGameStateWaiting();
+        }
+
+        else if (m_Ball.GetX()+Constants::BALL_SIZE<double>/2 > Constants::WINDOW_W<double>) {
+            #if DEBUG == 1
+                    std::cout << "Right Scored !\n";
+            #endif
             m_Score.second++;
             m_Ball.SetAngle(3*Constants::PI/2);
-        }
-
-    }
-
-    void HandleCol() {
-        switch (HandleBallWallCol(true)) {
-            
-            case WindowBorderCol::Left:
-                #if DEBUG == 1
-                    std::cout << "Left Scored !\n";
-                #endif
-                ResetGameStat(WindowBorderCol::Left);
-                break;
-            
-            case WindowBorderCol::Right:
-                #if DEBUG == 1
-                    std::cout << "Right Scored !\n";
-                #endif
-                ResetGameStat(WindowBorderCol::Right);
-                break;
-
-            default:
-                break;
+            SetGameStateWaiting();
         }
     }
-
-    WindowBorderCol HandleBallWallCol(bool doInvert) {
-        if (m_Ball.GetX()+Constants::BALL_SIZE<double>/2 > Constants::WINDOW_W<double>) {
-            if (doInvert) m_Ball.InvertAngle(false);
-            return WindowBorderCol::Right;
-        }
-        if (m_Ball.GetY()+Constants::BALL_SIZE<double>/2 > Constants::WINDOW_H<double>) {
-            if (doInvert) m_Ball.InvertAngle(true);
-            return WindowBorderCol::Floor;
-        }
-        if (m_Ball.GetX()-Constants::BALL_SIZE<double>/2 < 0) {
-            if (doInvert) m_Ball.InvertAngle(false);
-            return WindowBorderCol::Left;
-        }
-        if (m_Ball.GetY()-Constants::BALL_SIZE<double>/2 < 0) {
-            if (doInvert) m_Ball.InvertAngle(true);
-            return WindowBorderCol::Roof;
-        }
-        return WindowBorderCol::Nothing;
-    }
-
 };

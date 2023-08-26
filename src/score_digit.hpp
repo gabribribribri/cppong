@@ -8,12 +8,9 @@
 
 class ScoreDigit {
 
-/*
-    ! "R" in front of function names means Render
-*/
 
 public:
-    static bool s_Show;
+    inline static bool s_Show = false;
 
     ScoreDigit(int x, int y, int w ,int h)
         : m_Area ({
@@ -24,11 +21,11 @@ public:
         })
     {}
 
-    void Render(SDL_Renderer* renderer, int score) {
+    void Render(SDL_Renderer* renderer, uint8_t score) {
         if (!s_Show) return;
 
-        if (score < 0 or score > 9) {
-            std::cout << "[ERROR] : Score must be between 0 and 9\n";
+        if (score > 9) {
+            std::cout << "[ERROR] : Score must be less than 9\n";
             std::exit(-1);
         }
 
@@ -38,20 +35,16 @@ public:
 
 private:
     SDL_Rect m_Area;
-    const static std::array<SDL_Surface*, 10> DIGITS_SURFACES;
-} ;
-
-const std::array<SDL_Surface*, 10> ScoreDigit::DIGITS_SURFACES =  {
-    SDL_LoadBMP("digits/zero.bmp"),
-    SDL_LoadBMP("digits/one.bmp"),
-    SDL_LoadBMP("digits/two.bmp"),
-    SDL_LoadBMP("digits/three.bmp"),
-    SDL_LoadBMP("digits/four.bmp"),
-    SDL_LoadBMP("digits/five.bmp"),
-    SDL_LoadBMP("digits/six.bmp"),
-    SDL_LoadBMP("digits/seven.bmp"),
-    SDL_LoadBMP("digits/eight.bmp"),
-    SDL_LoadBMP("digits/nine.bmp")
+    inline const static std::array<SDL_Surface*, 10> DIGITS_SURFACES  =  {
+        SDL_LoadBMP("digits/zero.bmp"),
+        SDL_LoadBMP("digits/one.bmp"),
+        SDL_LoadBMP("digits/two.bmp"),
+        SDL_LoadBMP("digits/three.bmp"),
+        SDL_LoadBMP("digits/four.bmp"),
+        SDL_LoadBMP("digits/five.bmp"),
+        SDL_LoadBMP("digits/six.bmp"),
+        SDL_LoadBMP("digits/seven.bmp"),
+        SDL_LoadBMP("digits/eight.bmp"),
+        SDL_LoadBMP("digits/nine.bmp")
+    };
 };
-
-bool ScoreDigit::s_Show = false;
