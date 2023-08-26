@@ -1,75 +1,23 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_keycode.h>
-#include <unordered_map>
 #include "constants.hpp"
 #include "game.hpp"
+#include "score_digit.hpp"
 
 class Handler {
 
 /*
-    ! all events are handled in Handler class
+    ! events and collisions are all handled in Game class (m_Game member)
 */
 
 private:
     SDL_Window* m_Window;
     SDL_Renderer* m_Renderer;
-    SDL_Event m_Events;
     Game m_Game;
-    bool m_Running;
-    std::unordered_map<int, bool> m_KeyInput;
-
-    void CollectEvents() {
-        while (SDL_PollEvent(&m_Events)) {
-            switch (m_Events.type) {
-                case SDL_QUIT:
-                    m_Running = false;
-                    break;
-                case SDL_KEYDOWN:
-                    m_KeyInput[m_Events.key.keysym.sym] = true;
-                    break;
-                case SDL_KEYUP:
-                    m_KeyInput[m_Events.key.keysym.sym] = false;
-                    break;
-
-            }
-        }
-    }
-
-    void TreatEvents() {
-        if (m_KeyInput[SDLK_c]) m_Game.m_Ball.InvertAngle(false);
-        if (m_KeyInput[SDLK_v]) m_Game.m_Ball.InvertAngle(true);
-        if (m_KeyInput[SDLK_w]) m_Game.m_Ball.AddAngle(-0.1);
-        if (m_KeyInput[SDLK_x]) m_Game.m_Ball.AddAngle(+0.1);
-        if (m_KeyInput[SDLK_SPACE]) {
-            m_Game.m_Ball.GetX() = Constants::WINDOW_W<double>/2+Constants::BALL_SIZE<double>/2;
-            m_Game.m_Ball.GetY() = Constants::WINDOW_H<double>/2+Constants::BALL_SIZE<double>/2;
-        }
-
-    }
-
-    void Iteration() {
-        //Handle Events
-        CollectEvents();
-        TreatEvents();
-
-        //Eventless Game Logic
-        m_Game.EventlessGameLogic();
-
-        //Render Everything
-        SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 255);
-        SDL_RenderClear(m_Renderer);
-        SDL_SetRenderDrawColor(m_Renderer, 255, 255, 255, 255);
-        m_Game.Render(m_Renderer);
-        SDL_RenderPresent(m_Renderer);
-
-    }
-
-
 public:
     Handler()
-        : m_Game(Game()),
-        m_Running(true)
+        : m_Game(Game())
     {
         SDL_Init(SDL_INIT_VIDEO);
 
@@ -96,8 +44,8 @@ public:
     }
 
     void Run() {
-        while (m_Running) {
-            Iteration();
+        while (m_Game.m_GameState != GameState::Exited) {
+            m_Game.Iteration(m_Renderer);
             SDL_Delay(1000/Constants::FPS);
         }
     }

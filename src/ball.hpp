@@ -16,8 +16,6 @@ private:
     double m_Angle;
     double m_Velocity;
 
-    
-
     void FixAngle() {
         if (std::abs(m_Angle) > 2*Constants::PI)
             m_Angle = std::fmod(m_Angle, 2*Constants::PI);
@@ -65,6 +63,11 @@ public:
         //std::cout << m_Angle << "  " << useAngle << "  " << nQ << std::endl;
     }
 
+    void SetPosMiddle() {
+        m_X = Constants::WINDOW_W<double>/2+Constants::BALL_SIZE<double>/2;
+        m_Y = Constants::WINDOW_H<double>/2+Constants::BALL_SIZE<double>/2;
+    }
+
     void InvertAngle(bool vertically /*if not vertically then invert horizontally*/) {
         /* if (vertically)
             SetAngle(Constants::PI - GetAngle());
@@ -74,9 +77,9 @@ public:
     }
 
     void Render(SDL_Renderer* renderer) {
-        SDL_Rect ballShape{
-            static_cast<int>(m_X),
-            static_cast<int>(m_Y),
+        SDL_Rect ballShape {
+            static_cast<int>(m_X-Constants::BALL_SIZE<double>/2),
+            static_cast<int>(m_Y-Constants::BALL_SIZE<double>/2),
             Constants::BALL_SIZE<int>,
             Constants::BALL_SIZE<int>,
         };
