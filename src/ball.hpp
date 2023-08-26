@@ -80,8 +80,8 @@ public:
 
     void Render(SDL_Renderer* renderer) {
         SDL_Rect ballShape {
-            static_cast<int>(m_X),
-            static_cast<int>(m_Y),
+            static_cast<int>(m_X-Constants::BALL_SIZE<double>/2),
+            static_cast<int>(m_Y-Constants::BALL_SIZE<double>/2),
             Constants::BALL_SIZE<int>,
             Constants::BALL_SIZE<int>,
         };
