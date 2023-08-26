@@ -1,9 +1,8 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <array>
+#include <vector>
 #include "constants.hpp"
-#include <optional>
-
-
 
 class ScoreDigit {
 
@@ -12,25 +11,38 @@ class ScoreDigit {
 */
 
 public:
-    ScoreDigit(int x, int y)
-        : m_X(x), m_Y(y)
+    static bool s_Show;
+    const static std::array<SDL_Surface*, 10> IMAGES;
+    ScoreDigit(int x, int y, int h ,int w)
+        : m_Area ({
+            x,
+            y,
+            w,
+            h
+        })
     {}
 
     void Render(SDL_Renderer* renderer, int score) {
-
+        if (!s_Show) return;
     }
 
+    
+
 private:
-    int m_X, m_Y;
+    SDL_Rect m_Area;
 
-    void ROnePixel(SDL_Renderer* renderer, int offsetX, int offsetY) {
-        SDL_Rect pixelShape {
-            m_X+offsetX*Constants::DIGIT_PIXEL_SIZE,
-            m_Y+offsetY*Constants::DIGIT_PIXEL_SIZE,
-            Constants::DIGIT_PIXEL_SIZE,
-            Constants::DIGIT_PIXEL_SIZE
-        };
-
-        SDL_RenderFillRect(renderer, &pixelShape);
-    }    
+    
 } ;
+
+const std::array<SDL_Surface*, 10> ScoreDigit::IMAGES =  {
+        SDL_LoadBMP("digits/zero.bmp"),
+        SDL_LoadBMP("digits/one.bmp"),
+        SDL_LoadBMP("digits/two.bmp"),
+        SDL_LoadBMP("digits/three.bmp"),
+        SDL_LoadBMP("digits/four.bmp"),
+        SDL_LoadBMP("digits/five.bmp"),
+        SDL_LoadBMP("digits/six.bmp"),
+        SDL_LoadBMP("digits/seven.bmp"),
+        SDL_LoadBMP("digits/eight.bmp"),
+        SDL_LoadBMP("digits/nine.bmp")
+    };

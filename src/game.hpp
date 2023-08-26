@@ -3,6 +3,7 @@
 #include "ball.hpp"
 #include "constants.hpp"
 #include <tuple>
+#include "score_digit.hpp"
 
 enum class WindowBorderCol {
     Nothing = 0,
