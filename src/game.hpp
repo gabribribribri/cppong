@@ -1,10 +1,8 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_render.h>
 #include "ball.hpp"
-#include <cstdint>
-#include <tuple>
 #include "constants.hpp"
+#include <tuple>
 
 enum class WindowBorderCol {
     Nothing = 0,
@@ -48,6 +46,19 @@ public:
     }
 
 private:
+    void ResetGameStat(WindowBorderCol col) {
+        m_Ball.SetPosMiddle();
+        m_Timeout = Constants::TIMEOUT_SECONDS*Constants::FPS;
+        if (col == WindowBorderCol::Left) {
+            m_Score.first++;
+            m_Ball.SetAngle(Constants::PI/2);
+        } else {
+            m_Score.second++;
+            m_Ball.SetAngle(3*Constants::PI/2);
+        }
+
+    }
+
     void HandleCol() {
         switch (HandleBallWallCol(true)) {
             
@@ -55,19 +66,14 @@ private:
                 #if DEBUG == 1
                     std::cout << "Left Scored ! ";
                 #endif
-                m_Ball.SetPosMiddle();
-                m_Ball.SetAngle(Constants::PI/2);
-                m_Timeout = Constants::TIMEOUT_SECONDS*Constants::FPS;
-                m_Score.first++;
+                ResetGameStat(WindowBorderCol::Left);
                 break;
+            
             case WindowBorderCol::Right:
                 #if DEBUG == 1
                     std::cout << "Right Scored ! ";
                 #endif
-                m_Ball.SetPosMiddle();
-                m_Ball.SetAngle(3*Constants::PI/2);
-                m_Timeout = Constants::TIMEOUT_SECONDS*Constants::FPS;
-                m_Score.second++;
+                ResetGameStat(WindowBorderCol::Right);
                 break;
 
             default:

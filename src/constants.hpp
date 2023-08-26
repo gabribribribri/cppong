@@ -20,4 +20,7 @@ namespace Constants {
     constexpr int32_t BALL_BASE_VELOCITY = 1;
     template<typename T> constexpr T BALL_SIZE { 20 }; 
 
+    //score_digit
+    constexpr int DIGIT_PIXEL_SIZE = 15;
+
 }

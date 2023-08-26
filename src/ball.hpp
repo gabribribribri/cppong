@@ -79,7 +79,7 @@ public:
     }
 
     void Render(SDL_Renderer* renderer) {
-        SDL_Rect ballShape{
+        SDL_Rect ballShape {
             static_cast<int>(m_X),
             static_cast<int>(m_Y),
             Constants::BALL_SIZE<int>,
