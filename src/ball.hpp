@@ -65,6 +65,11 @@ public:
         //std::cout << m_Angle << "  " << useAngle << "  " << nQ << std::endl;
     }
 
+    void SetPosMiddle() {
+        m_X = Constants::WINDOW_W<double>/2+Constants::BALL_SIZE<double>/2;
+        m_Y = Constants::WINDOW_H<double>/2+Constants::BALL_SIZE<double>/2;
+    }
+
     void InvertAngle(bool vertically /*if not vertically then invert horizontally*/) {
         /* if (vertically)
             SetAngle(Constants::PI - GetAngle());

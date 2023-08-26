@@ -37,6 +37,7 @@ private:
     }
 
     void TreatEvents() {
+    #if DEBUG == 1
         if (m_KeyInput[SDLK_c]) m_Game.m_Ball.InvertAngle(false);
         if (m_KeyInput[SDLK_v]) m_Game.m_Ball.InvertAngle(true);
         if (m_KeyInput[SDLK_w]) m_Game.m_Ball.AddAngle(-0.1);
@@ -45,16 +46,19 @@ private:
             m_Game.m_Ball.GetX() = Constants::WINDOW_W<double>/2+Constants::BALL_SIZE<double>/2;
             m_Game.m_Ball.GetY() = Constants::WINDOW_H<double>/2+Constants::BALL_SIZE<double>/2;
         }
+    #endif
 
     }
 
     void Iteration() {
-        //Handle Events
-        CollectEvents();
-        TreatEvents();
+        if (m_Game.m_Timeout-- <= 0) {
+            //Handle Events
+            CollectEvents();
+            TreatEvents();
 
-        //Eventless Game Logic
-        m_Game.EventlessGameLogic();
+            //Eventless Game Logic
+            m_Game.EventlessGameLogic();
+        }
 
         //Render Everything
         SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 255);

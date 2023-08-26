@@ -2,6 +2,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 #include "ball.hpp"
+#include <cstdint>
+#include <tuple>
 #include "constants.hpp"
 
 enum class WindowBorderCol {
@@ -20,12 +22,23 @@ class Game {
 
 public:
     Ball m_Ball;
+    int m_Timeout;
+    std::pair<uint8_t, uint8_t> m_Score;
 
     Game()
-        : m_Ball(Ball())
+        : m_Ball(Ball()), m_Timeout(0), m_Score({0, 0})
     {}
 
     void EventlessGameLogic() {
+        #if DEBUG
+            std::cout
+                << "Score : "
+                << static_cast<int>(m_Score.first)
+                << ", "
+                << static_cast<int>(m_Score.second)
+                << "\n";
+        #endif
+
         HandleCol();
         m_Ball.SetNewPos();
     }
@@ -36,7 +49,30 @@ public:
 
 private:
     void HandleCol() {
-        WindowBorderCol ballWallCol = HandleBallWallCol(true);
+        switch (HandleBallWallCol(true)) {
+            
+            case WindowBorderCol::Left:
+                #if DEBUG == 1
+                    std::cout << "Left Scored ! ";
+                #endif
+                m_Ball.SetPosMiddle();
+                m_Ball.SetAngle(Constants::PI/2);
+                m_Timeout = Constants::TIMEOUT_SECONDS*Constants::FPS;
+                m_Score.first++;
+                break;
+            case WindowBorderCol::Right:
+                #if DEBUG == 1
+                    std::cout << "Right Scored ! ";
+                #endif
+                m_Ball.SetPosMiddle();
+                m_Ball.SetAngle(3*Constants::PI/2);
+                m_Timeout = Constants::TIMEOUT_SECONDS*Constants::FPS;
+                m_Score.second++;
+                break;
+
+            default:
+                break;
+        }
     }
 
     WindowBorderCol HandleBallWallCol(bool doInvert) {
