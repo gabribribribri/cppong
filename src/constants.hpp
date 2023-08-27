@@ -18,10 +18,11 @@ namespace Constants {
     template<typename T> constexpr T WINDOW_H { 500 };
 
     //ball
-    constexpr double BALL_BASE_VELOCITY { 1 };
+    constexpr double BALL_BASE_VELOCITY { 3 };
     template<typename T> constexpr T BALL_SIZE { 15 }; 
 
     //score_digit
     constexpr int DIGIT_PIXEL_SIZE = 15;
 
+    //
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "constants.hpp"
+#include "../constants.hpp"
 #include <SDL2/SDL.h>
 #include <cmath>
 #include <iostream>
