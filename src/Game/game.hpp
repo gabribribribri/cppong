@@ -1,7 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include "ball.hpp"
-#include "constants.hpp"
+#include "../constants.hpp"
 #include <SDL2/SDL_render.h>
 #include <tuple>
 #include <unordered_map>
@@ -21,14 +21,6 @@ class Game {
 
 public:
     GameState m_GameState;
-    int m_Timeout;
-    std::pair<uint8_t, uint8_t> m_Score;
-    std::unordered_map<int, bool> m_KeyInput;
-    SDL_Event m_Events;
-
-    //game sprites
-    Ball m_Ball;
-    std::pair<ScoreDigit, ScoreDigit> m_ScoreDigits;
 
     Game()
         : //initializing all members
@@ -42,14 +34,10 @@ public:
             {
                 Constants::WINDOW_W<int>/4-4*Constants::DIGIT_PIXEL_SIZE/2,
                 Constants::WINDOW_H<int>/9,
-                4*Constants::DIGIT_PIXEL_SIZE,
-                5*Constants::DIGIT_PIXEL_SIZE,
             },
             {
                 3*Constants::WINDOW_W<int>/4-4*Constants::DIGIT_PIXEL_SIZE/2,
                 Constants::WINDOW_H<int>/9,
-                4*Constants::DIGIT_PIXEL_SIZE,
-                5*Constants::DIGIT_PIXEL_SIZE,
             }
         })
     {
@@ -57,9 +45,19 @@ public:
     }
 
     void Iteration(SDL_Renderer* renderer) {
+        //debug
+        #if DEBUG
+            std::cout
+                << "[INFO] : Score : "
+                << static_cast<int>(m_Score.first)
+                << ", "
+                << static_cast<int>(m_Score.second)
+                << "\n";
+        #endif
+
+        //handle different things based on game state
         switch (m_GameState) {
             case GameState::Running:
-                ScoreDigit::s_Show = false;
                 //handle all events
                 CollectEvents();
                 TreatEvents();
@@ -77,6 +75,7 @@ public:
                 break;
         }
         
+        //rendering
         //background
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); //color black
         SDL_RenderClear(renderer);
@@ -88,25 +87,19 @@ public:
         //drawing everything to screen
         SDL_RenderPresent(renderer);
     }
-
-    void EventlessGameLogic() {
-        #if DEBUG
-            std::cout
-                << "Score : "
-                << static_cast<int>(m_Score.first)
-                << ", "
-                << static_cast<int>(m_Score.second)
-                << "\n";
-        #endif
-
-        HandleCol();
-        m_Ball.SetNewPos();
-    }
-
-        
+   
 private:
+    int m_Timeout;
+    std::pair<uint8_t, uint8_t> m_Score;
+    std::unordered_map<int, bool> m_KeyInput;
+    SDL_Event m_Events;
+
+    //game sprites
+    Ball m_Ball;
+    std::pair<ScoreDigit, ScoreDigit> m_ScoreDigits;
+
     void TreatEvents() {
-        #if DEBUG == 1
+        #if DEBUG
             if (m_KeyInput[SDLK_c]) m_Ball.InvertAngle(false);
             if (m_KeyInput[SDLK_v]) m_Ball.InvertAngle(true);
             if (m_KeyInput[SDLK_w]) m_Ball.AddAngle(-0.1);
@@ -134,12 +127,16 @@ private:
             }
         }
     }
-
-    void HandleCol() {
+    void EventlessGameLogic() {
+        //handle collisions
         HandleBallWallCol();
+
+        //ball moving
+        m_Ball.SetNewPos();
     }
 
     void SetGameStateWaiting() {
+
         m_Ball.SetPosMiddle();
         m_Timeout = Constants::TIMEOUT_FRAMES;
         ScoreDigit::s_Show = true;
@@ -151,26 +148,32 @@ private:
         m_GameState = GameState::Running;
     }
 
+    void Scoring(bool isLeft) {
+        uint8_t& score = (isLeft ? m_Score.first : m_Score.second);
+        #if DEBUG
+                std::cout << "[INFO] : " << (isLeft ? "Left" : "Right") << " Scored !\n";
+        #endif
+        score++;
+        if (score >= 10) {
+            #if DEBUG
+                std::cout << "[INFO] : " << (isLeft ? "LEFT" : "RIGHT") << " WON !\n";
+            #endif
+            m_GameState = GameState::Exited;
+            return;
+        }
+        
+    }
+
     void HandleBallWallCol() {
         if (m_Ball.GetY()-Constants::BALL_SIZE<double>/2 < 0 or
-            m_Ball.GetY()+Constants::BALL_SIZE<double>/2 > Constants::WINDOW_H<double>)
-            m_Ball.InvertAngle(true);
-
-
-        else if (m_Ball.GetX()-Constants::BALL_SIZE<double>/2 < 0) {
-            #if DEBUG == 1
-                    std::cout << "Left Scored !\n";
-            #endif
-            m_Score.first++;
+            m_Ball.GetY()+Constants::BALL_SIZE<double>/2 > Constants::WINDOW_H<double>) {
+                m_Ball.InvertAngle(true);
+        } else if (m_Ball.GetX()-Constants::BALL_SIZE<double>/2 < 0) {
+            Scoring(true);
             m_Ball.SetAngle(Constants::PI/2);
             SetGameStateWaiting();
-        }
-
-        else if (m_Ball.GetX()+Constants::BALL_SIZE<double>/2 > Constants::WINDOW_W<double>) {
-            #if DEBUG == 1
-                    std::cout << "Right Scored !\n";
-            #endif
-            m_Score.second++;
+        } else if (m_Ball.GetX()+Constants::BALL_SIZE<double>/2 > Constants::WINDOW_W<double>) {
+            Scoring(false);
             m_Ball.SetAngle(3*Constants::PI/2);
             SetGameStateWaiting();
         }

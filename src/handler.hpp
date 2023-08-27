@@ -2,8 +2,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_keycode.h>
 #include "constants.hpp"
-#include "game.hpp"
-#include "score_digit.hpp"
+#include "Game/game.hpp"
+#include "Game/score_digit.hpp"
 
 class Handler {
 
