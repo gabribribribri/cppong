@@ -1,10 +1,12 @@
 #pragma once
+//C++ headers
 #include <SDL2/SDL.h>
-#include "ball.hpp"
-#include "../constants.hpp"
-#include <SDL2/SDL_render.h>
 #include <tuple>
 #include <unordered_map>
+//Local headers
+#include "ball.hpp"
+#include "../constants.hpp"
+#include "pad.hpp"
 #include "score_digit.hpp"
 
 enum class GameState {
@@ -30,28 +32,26 @@ public:
 
         //game sprites
         m_Ball(Ball()),
-        m_ScoreDigits({
-            {
-                Constants::WINDOW_W<int>/4-4*Constants::DIGIT_PIXEL_SIZE/2,
-                Constants::WINDOW_H<int>/9,
-            },
-            {
-                3*Constants::WINDOW_W<int>/4-4*Constants::DIGIT_PIXEL_SIZE/2,
-                Constants::WINDOW_H<int>/9,
-            }
-        })
+        m_ScoreDigits{
+            {Constants::WINDOW_W<int>/4-4*Constants::DIGIT_PIXEL_SIZE/2},
+            {3*Constants::WINDOW_W<int>/4-4*Constants::DIGIT_PIXEL_SIZE/2}
+        },
+        m_Pads {{50},{Constants::WINDOW_W<int>-50}}
     {
+        srand(time(nullptr));
         SetGameStateWaiting();
     }
 
     void Iteration(SDL_Renderer* renderer) {
         DEBUG (
             std::cout
-                << "[INFO] : Score : "
+                << "[INFO] : Score["
                 << static_cast<int>(m_Score.first)
                 << ", "
                 << static_cast<int>(m_Score.second)
-                << "\n";
+                << "]; Ball Velocity["
+                << m_Ball.GetVelocity()
+                << "];\n";
         )
 
         //handle different things based on game state
@@ -83,11 +83,14 @@ public:
         m_Ball.Render(renderer);
         m_ScoreDigits.first.Render(renderer, m_Score.first);
         m_ScoreDigits.second.Render(renderer, m_Score.second);
+        m_Pads.first.Render(renderer);
+        m_Pads.second.Render(renderer);
         //drawing everything to screen
         SDL_RenderPresent(renderer);
     }
    
 private:
+
     int m_Timeout;
     std::pair<uint8_t, uint8_t> m_Score;
     std::unordered_map<int, bool> m_KeyInput;
@@ -96,8 +99,14 @@ private:
     //game sprites
     Ball m_Ball;
     std::pair<ScoreDigit, ScoreDigit> m_ScoreDigits;
+    std::pair<Pad, Pad> m_Pads;
 
     void TreatEvents() {
+        if (m_KeyInput[SDLK_z]) m_Pads.first.GoUp();
+        if (m_KeyInput[SDLK_s]) m_Pads.first.GoDown();
+        if (m_KeyInput[SDLK_o]) m_Pads.second.GoUp();
+        if (m_KeyInput[SDLK_l]) m_Pads.second.GoDown();
+
         DEBUG (
             if (m_KeyInput[SDLK_c]) m_Ball.InvertAngle(false);
             if (m_KeyInput[SDLK_v]) m_Ball.InvertAngle(true);
@@ -133,14 +142,17 @@ private:
     void EventlessGameLogic() {
         //handle collisions
         HandleBallWallCol();
+        HandleBallPadCol();
 
         //ball moving
         m_Ball.SetNewPos();
+        m_Ball.GetVelocity() += Constants::BALL_VELOCITY_GAIN_PER_FRAME;
     }
 
     void SetGameStateWaiting() {
-
         m_Ball.SetPosMiddle();
+        m_Pads.first.SetPosMiddle();
+        m_Pads.second.SetPosMiddle();
         m_Timeout = Constants::TIMEOUT_FRAMES;
         ScoreDigit::s_Show = true;
         m_GameState = GameState::Waiting;
@@ -160,7 +172,7 @@ private:
             m_GameState = GameState::Exited;
             return;
         }
-        m_Ball.SetAngle((isLeft ? 1 : 3)*Constants::PI/2);
+        m_Ball.RandomStartAngle(isLeft);
         SetGameStateWaiting();        
     }
 
@@ -172,6 +184,14 @@ private:
             Scoring(true);
         } else if (m_Ball.GetX()+Constants::BALL_SIZE<double>/2 > Constants::WINDOW_W<double>) {
             Scoring(false);
+        }
+    }
+
+    void HandleBallPadCol() {
+        const SDL_Rect ballShape = m_Ball.GetShape();
+        if (SDL_HasIntersection(&ballShape, &m_Pads.first.m_Area) or
+            SDL_HasIntersection(&ballShape, &m_Pads.second.m_Area)) {
+            m_Ball.InvertAngle(false);
         }
     }
 };

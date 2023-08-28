@@ -11,10 +11,10 @@ class ScoreDigit {
 public:
     inline static bool s_Show = false;
 
-    ScoreDigit(int x, int y)
+    ScoreDigit(int x)
         : m_Area ({
             x,
-            y,
+            Constants::WINDOW_H<int>/9,
             4*Constants::DIGIT_PIXEL_SIZE,
             5*Constants::DIGIT_PIXEL_SIZE,
         })
