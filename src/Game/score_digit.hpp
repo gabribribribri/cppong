@@ -25,7 +25,7 @@ public:
 
         if (!DIGITS_TEXTURES[score])
             DIGITS_TEXTURES[score] = SDL_CreateTextureFromSurface(renderer, DIGITS_SURFACES[score]);
-            
+
         SDL_RenderCopy(renderer, DIGITS_TEXTURES[score], nullptr, &m_Area);
     }
 

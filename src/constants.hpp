@@ -1,7 +1,12 @@
 #pragma once
 #include <cstdint>
 
-#define DEBUG 1
+//enable DEBUGGING
+#if true //<-- this
+    #define DEBUG(x) x
+#else
+    #define DEBUG(x)
+#endif
 
 namespace Constants {
 

@@ -45,15 +45,14 @@ public:
     }
 
     void Iteration(SDL_Renderer* renderer) {
-        //debug
-        #if DEBUG
+        DEBUG (
             std::cout
                 << "[INFO] : Score : "
                 << static_cast<int>(m_Score.first)
                 << ", "
                 << static_cast<int>(m_Score.second)
                 << "\n";
-        #endif
+        )
 
         //handle different things based on game state
         switch (m_GameState) {
@@ -99,7 +98,7 @@ private:
     std::pair<ScoreDigit, ScoreDigit> m_ScoreDigits;
 
     void TreatEvents() {
-        #if DEBUG
+        DEBUG (
             if (m_KeyInput[SDLK_c]) m_Ball.InvertAngle(false);
             if (m_KeyInput[SDLK_v]) m_Ball.InvertAngle(true);
             if (m_KeyInput[SDLK_w]) m_Ball.AddAngle(-0.1);
@@ -108,7 +107,11 @@ private:
                 m_Ball.GetX() = Constants::WINDOW_W<double>/2+Constants::BALL_SIZE<double>/2;
                 m_Ball.GetY() = Constants::WINDOW_H<double>/2+Constants::BALL_SIZE<double>/2;
             }
-        #endif
+            if (m_KeyInput[SDLK_n]) {
+                m_Score.first = 9;
+                m_Score.second = 9;
+            }
+        )
     }
 
     void CollectEvents() {
@@ -150,18 +153,15 @@ private:
 
     void Scoring(bool isLeft) {
         uint8_t& score = (isLeft ? m_Score.first : m_Score.second);
-        #if DEBUG
-                std::cout << "[INFO] : " << (isLeft ? "Left" : "Right") << " Scored !\n";
-        #endif
+        DEBUG(std::cout << "[INFO] : " << (isLeft ? "Left" : "Right") << " Scored !\n";)
         score++;
         if (score >= 10) {
-            #if DEBUG
-                std::cout << "[INFO] : " << (isLeft ? "LEFT" : "RIGHT") << " WON !\n";
-            #endif
+            DEBUG(std::cout << "[INFO] : " << (isLeft ? "LEFT" : "RIGHT") << " WON !\n";)
             m_GameState = GameState::Exited;
             return;
         }
-        
+        m_Ball.SetAngle((isLeft ? 1 : 3)*Constants::PI/2);
+        SetGameStateWaiting();        
     }
 
     void HandleBallWallCol() {
@@ -170,12 +170,8 @@ private:
                 m_Ball.InvertAngle(true);
         } else if (m_Ball.GetX()-Constants::BALL_SIZE<double>/2 < 0) {
             Scoring(true);
-            m_Ball.SetAngle(Constants::PI/2);
-            SetGameStateWaiting();
         } else if (m_Ball.GetX()+Constants::BALL_SIZE<double>/2 > Constants::WINDOW_W<double>) {
             Scoring(false);
-            m_Ball.SetAngle(3*Constants::PI/2);
-            SetGameStateWaiting();
         }
     }
 };
