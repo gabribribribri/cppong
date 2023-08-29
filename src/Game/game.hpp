@@ -1,6 +1,7 @@
 #pragma once
 //C++ headers
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_rect.h>
 #include <tuple>
 #include <unordered_map>
 //Local headers
@@ -36,25 +37,16 @@ public:
             {Constants::WINDOW_W<int>/4-4*Constants::DIGIT_PIXEL_SIZE/2},
             {3*Constants::WINDOW_W<int>/4-4*Constants::DIGIT_PIXEL_SIZE/2}
         },
-        m_Pads {{50},{Constants::WINDOW_W<int>-50}}
+        m_Pads {
+            {50, 50+Constants::PAD_W},
+            {Constants::WINDOW_W<int>-50-Constants::PAD_W, Constants::WINDOW_W<int>-50-Constants::PAD_W}
+        }
     {
-        srand(time(nullptr));
         SetGameStateWaiting();
     }
 
     void Iteration(SDL_Renderer* renderer) {
-        DEBUG (
-            std::cout
-                << "[INFO] : Score["
-                << static_cast<int>(m_Score.first)
-                << ", "
-                << static_cast<int>(m_Score.second)
-                << "]; Ball Velocity["
-                << m_Ball.GetVelocity()
-                << "];\n";
-        )
-
-        //handle different things based on game state
+        //?handle different things based on game state
         switch (m_GameState) {
             case GameState::Running:
                 //handle all events
@@ -74,7 +66,7 @@ public:
                 break;
         }
         
-        //rendering
+        //?RENDERING
         //background
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); //color black
         SDL_RenderClear(renderer);
@@ -102,14 +94,14 @@ private:
     std::pair<Pad, Pad> m_Pads;
 
     void TreatEvents() {
-        if (m_KeyInput[SDLK_z]) m_Pads.first.GoUp();
-        if (m_KeyInput[SDLK_s]) m_Pads.first.GoDown();
-        if (m_KeyInput[SDLK_o]) m_Pads.second.GoUp();
-        if (m_KeyInput[SDLK_l]) m_Pads.second.GoDown();
+        if (m_KeyInput[SDLK_z]) m_Pads.first.GoUp(false, Pad::s_SlowVel);
+        if (m_KeyInput[SDLK_s]) m_Pads.first.GoDown(false, Pad::s_SlowVel);
+        if (m_KeyInput[SDLK_o]) m_Pads.second.GoUp(false, Pad::s_SlowVel);
+        if (m_KeyInput[SDLK_l]) m_Pads.second.GoDown(false, Pad::s_SlowVel);
 
         DEBUG (
-            if (m_KeyInput[SDLK_c]) m_Ball.InvertAngle(false);
-            if (m_KeyInput[SDLK_v]) m_Ball.InvertAngle(true);
+            if (m_KeyInput[SDLK_c]) m_Ball.GetVelocity() -= 0.05;
+            if (m_KeyInput[SDLK_v]) m_Ball.GetVelocity() += 0.05;
             if (m_KeyInput[SDLK_w]) m_Ball.AddAngle(-0.1);
             if (m_KeyInput[SDLK_x]) m_Ball.AddAngle(+0.1);
             if (m_KeyInput[SDLK_b]) {
@@ -164,6 +156,18 @@ private:
     }
 
     void Scoring(bool isLeft) {
+        //?some debug
+        DEBUG (
+            std::cout
+                << "[INFO] : Score["
+                << static_cast<int>(m_Score.first)
+                << ", "
+                << static_cast<int>(m_Score.second)
+                << "]; Ball Velocity["
+                << m_Ball.GetVelocity()
+                << "];\n";
+        )
+
         uint8_t& score = (isLeft ? m_Score.first : m_Score.second);
         DEBUG(std::cout << "[INFO] : " << (isLeft ? "Left" : "Right") << " Scored !\n";)
         score++;
@@ -187,11 +191,27 @@ private:
         }
     }
 
-    void HandleBallPadCol() {
-        const SDL_Rect ballShape = m_Ball.GetShape();
-        if (SDL_HasIntersection(&ballShape, &m_Pads.first.m_Area) or
-            SDL_HasIntersection(&ballShape, &m_Pads.second.m_Area)) {
-            m_Ball.InvertAngle(false);
+    void HandleOneBallPadCol(bool isLeft, const SDL_Rect& ballShape) {
+        Pad& pad = (isLeft ? m_Pads.first : m_Pads.second);
+
+        if (SDL_IntersectRectAndLine(&ballShape, &pad.m_UpLine.x1, &pad.m_UpLine.y1, &pad.m_UpLine.x2, &pad.m_UpLine.y2)) {
+            DEBUG(std::cout << "[INFO] : m_Ball.OpposeAngle(isLeft);\n");
+            m_Ball.OpposeAngleSecure(isLeft);
+        } else if (SDL_IntersectRectAndLine(&ballShape, &pad.m_DownLine.x1, &pad.m_DownLine.y1, &pad.m_DownLine.x2, &pad.m_DownLine.y2)) {
+            DEBUG(std::cout << "[INFO] : m_Ball.OpposeAngle(isLeft);\n");
+            m_Ball.OpposeAngleSecure(isLeft);
+        } else if (SDL_IntersectRectAndLine(&ballShape, &pad.m_FrontLine.x1, &pad.m_FrontLine.y1, &pad.m_FrontLine.x2, &pad.m_FrontLine.y2)) {
+            DEBUG(std::cout << "[INFO] : m_Ball.InvertAngleSecure(false, isLeft);\n");
+            m_Ball.InvertAngleSecure(false, isLeft);
+        } else if (SDL_HasIntersection(&ballShape, &pad.m_Area)) {
+            DEBUG(std::cout << "[INFO] : m_Ball.InvertAngleSecure(false, isLeft);\n");
+            m_Ball.InvertAngleSecure(false, isLeft);
         }
+    }
+
+    void HandleBallPadCol() {
+        SDL_Rect ballShape = m_Ball.GetShape();
+        HandleOneBallPadCol(true, ballShape);
+        HandleOneBallPadCol(false, ballShape);
     }
 };

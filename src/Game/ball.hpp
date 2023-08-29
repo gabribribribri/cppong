@@ -2,6 +2,7 @@
 #include "../constants.hpp"
 #include <SDL2/SDL.h>
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <random>
 
@@ -25,6 +26,10 @@ private:
             m_Angle += 2*Constants::PI;
     }
 
+    bool Secure(bool goingLeft) {
+        return m_Angle < (goingLeft ? 2 : 1)*Constants::PI and m_Angle > (goingLeft ? 1 : 0)*Constants::PI;
+    }
+
 public:
     const double& GetX()        const { return m_X;        }
     const double& GetY()        const { return m_Y;        }
@@ -34,7 +39,7 @@ public:
     double& GetY()                    { return m_Y;        }
     double& GetAngle()                { return m_Angle;    }
     double& GetVelocity()             { return m_Velocity; }
-    const SDL_Rect GetShape() const  {
+    SDL_Rect GetShape() {
         SDL_Rect shape {
             static_cast<int>(m_X)-Constants::BALL_SIZE<int>/2,
             static_cast<int>(m_Y)-Constants::BALL_SIZE<int>/2,
@@ -66,6 +71,7 @@ public:
         m_Angle = distribution(engine);
     }
 
+
     void AddAngle(double toAdd) {
         m_Angle += toAdd;
         FixAngle();
@@ -89,12 +95,18 @@ public:
         m_Y = Constants::WINDOW_H<double>/2+Constants::BALL_SIZE<double>/2;
     }
 
-    void InvertAngle(bool vertically /*if not vertically then invert horizontally*/) {
-        /* if (vertically)
-            SetAngle(Constants::PI - GetAngle());
-        else
-            SetAngle(2*Constants::PI - GetAngle()); */
+    void InvertAngle(bool vertically) {
         SetAngle((!vertically+1) * Constants::PI - GetAngle());
+    }
+
+    void InvertAngleSecure(bool vertically, bool goingLeft) {
+        if (not Secure(goingLeft)) return;
+        SetAngle((!vertically+1) * Constants::PI - GetAngle());
+    }
+
+    void OpposeAngleSecure(bool goingLeft) {
+        if (not Secure(goingLeft)) return;
+        AddAngle(Constants::PI);
     }
 
     void Render(SDL_Renderer* renderer) {

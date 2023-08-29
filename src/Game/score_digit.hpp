@@ -12,28 +12,28 @@ public:
     inline static bool s_Show = false;
 
     ScoreDigit(int x)
-        : m_Area ({
+        : m_Area {
             x,
             Constants::WINDOW_H<int>/9,
             4*Constants::DIGIT_PIXEL_SIZE,
             5*Constants::DIGIT_PIXEL_SIZE,
-        })
+        }
     {}
 
     void Render(SDL_Renderer* renderer, uint8_t score) {
         if (!s_Show) return;
 
-        if (!DIGITS_TEXTURES[score])
-            DIGITS_TEXTURES[score] = SDL_CreateTextureFromSurface(renderer, DIGITS_SURFACES[score]);
+        if (!s_DigitsTextures[score])
+            s_DigitsTextures[score] = SDL_CreateTextureFromSurface(renderer, s_DigitsSurfaces[score]);
 
-        SDL_RenderCopy(renderer, DIGITS_TEXTURES[score], nullptr, &m_Area);
+        SDL_RenderCopy(renderer, s_DigitsTextures[score], nullptr, &m_Area);
     }
 
 private:
     SDL_Rect m_Area;
 
-    inline static std::array<SDL_Texture*, 10> DIGITS_TEXTURES {};
-    inline const static std::array<SDL_Surface*, 10> DIGITS_SURFACES {
+    inline static std::array<SDL_Texture*, 10> s_DigitsTextures {};
+    inline const static std::array<SDL_Surface*, 10> s_DigitsSurfaces {
         SDL_LoadBMP("digits/zero.bmp"),
         SDL_LoadBMP("digits/one.bmp"),
         SDL_LoadBMP("digits/two.bmp"),
