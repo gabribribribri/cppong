@@ -9,7 +9,6 @@
 #endif
 
 namespace Constants {
-
     //fps
     constexpr int FPS = 120;
     constexpr int TIMEOUT_SECONDS = 1;
@@ -33,7 +32,7 @@ namespace Constants {
 
     //pad
     constexpr int PAD_SLOW_VELOCITY { 3 };
-    constexpr int PAD_FAST_VELOCITY { 5 };
+    constexpr int PAD_FAST_VELOCITY { 8 };
     constexpr int PAD_W { 15 };
     constexpr int PAD_H { 75 };
 }

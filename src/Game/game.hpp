@@ -94,11 +94,14 @@ private:
     std::pair<Pad, Pad> m_Pads;
 
     void TreatEvents() {
-        if (m_KeyInput[SDLK_z]) m_Pads.first.GoUp(false, Pad::s_SlowVel);
-        if (m_KeyInput[SDLK_s]) m_Pads.first.GoDown(false, Pad::s_SlowVel);
-        if (m_KeyInput[SDLK_o]) m_Pads.second.GoUp(false, Pad::s_SlowVel);
-        if (m_KeyInput[SDLK_l]) m_Pads.second.GoDown(false, Pad::s_SlowVel);
-
+        if (m_KeyInput[SDLK_z]) m_Pads.first.GoUp(Pad::s_SlowVel);
+        if (m_KeyInput[SDLK_s]) m_Pads.first.GoDown(Pad::s_SlowVel);
+        if (m_KeyInput[SDLK_o]) m_Pads.second.GoUp( Pad::s_SlowVel);
+        if (m_KeyInput[SDLK_l]) m_Pads.second.GoDown(Pad::s_SlowVel);
+        if (m_KeyInput[SDLK_e]) m_Pads.first.GoUp( Pad::s_FastVel);
+        if (m_KeyInput[SDLK_d]) m_Pads.first.GoDown(Pad::s_FastVel);
+        if (m_KeyInput[SDLK_i]) m_Pads.second.GoUp(Pad::s_FastVel);
+        if (m_KeyInput[SDLK_k]) m_Pads.second.GoDown(Pad::s_FastVel);
         DEBUG (
             if (m_KeyInput[SDLK_c]) m_Ball.GetVelocity() -= 0.05;
             if (m_KeyInput[SDLK_v]) m_Ball.GetVelocity() += 0.05;

@@ -20,4 +20,9 @@ keyboard is AWERTY btw
 	- **O** up
 	- **L** down
 	- **I** fast up
-	- **K** fast down 
+	- **K** fast down
+
+### Things that I may (or may not) do later
+- [ ] Ball effects
+- [ ] Menu
+- [ ] Adapting FPS

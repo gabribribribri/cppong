@@ -35,12 +35,12 @@ public:
         FixLines();
     }
 
-    void GoUp(bool isFast, int vel) {
+    void GoUp(int vel) {
         if (m_Area.y < 0) return;
         Move(true, vel);
     }
 
-    void GoDown(bool isFast, int vel) {
+    void GoDown(int vel) {
         if (m_Area.y+m_Area.h > Constants::WINDOW_H<int>) return;
         Move(false, vel);
     }
